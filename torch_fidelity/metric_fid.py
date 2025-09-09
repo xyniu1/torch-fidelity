@@ -104,10 +104,10 @@ def fid_inputs_to_metric(feat_extractor, get_stats=False, **kwargs):
         return stats_1
 
 
-def calculate_fid(get_stats=False, **kwargs):
+def calculate_fid(**kwargs):
     kwargs["fid"] = True
     feature_extractor = resolve_feature_extractor(**kwargs)
     feat_layer_name = resolve_feature_layer_for_metric("fid", **kwargs)
     feat_extractor = create_feature_extractor(feature_extractor, [feat_layer_name], **kwargs)
-    metric = fid_inputs_to_metric(feat_extractor, get_stats, **kwargs)
+    metric = fid_inputs_to_metric(feat_extractor, **kwargs)
     return metric
