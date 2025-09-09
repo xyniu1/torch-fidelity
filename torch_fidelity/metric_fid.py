@@ -87,26 +87,27 @@ def fid_input_id_to_statistics_cached(input_id, feat_extractor, feat_layer_name,
     return stat
 
 
-def fid_inputs_to_metric(feat_extractor, return_stats=False, **kwargs):
+def fid_inputs_to_metric(feat_extractor, get_stats=False, **kwargs):
     feat_layer_name = resolve_feature_layer_for_metric("fid", **kwargs)
     verbose = get_kwarg("verbose", kwargs)
 
     vprint(verbose, f"Extracting statistics from input 1")
     stats_1 = fid_input_id_to_statistics_cached(1, feat_extractor, feat_layer_name, **kwargs)
 
-    vprint(verbose, f"Extracting statistics from input 2")
-    stats_2 = fid_input_id_to_statistics_cached(2, feat_extractor, feat_layer_name, **kwargs)
+    if not get_stats:
+        vprint(verbose, f"Extracting statistics from input 2")
+        stats_2 = fid_input_id_to_statistics_cached(2, feat_extractor, feat_layer_name, **kwargs)
+    
+        metric = fid_statistics_to_metric(stats_1, stats_2, get_kwarg("verbose", kwargs))
+        return metric
+    else:
+        return stats_1
 
-    metric = fid_statistics_to_metric(stats_1, stats_2, get_kwarg("verbose", kwargs))
-    if return_stats:
-        return metric, stats_1, stats_2
-    return metric
 
-
-def calculate_fid(return_stats=False, **kwargs):
+def calculate_fid(get_stats=False, **kwargs):
     kwargs["fid"] = True
     feature_extractor = resolve_feature_extractor(**kwargs)
     feat_layer_name = resolve_feature_layer_for_metric("fid", **kwargs)
     feat_extractor = create_feature_extractor(feature_extractor, [feat_layer_name], **kwargs)
-    metric = fid_inputs_to_metric(feat_extractor, return_stats, **kwargs)
+    metric = fid_inputs_to_metric(feat_extractor, get_stats, **kwargs)
     return metric
