@@ -18,7 +18,7 @@ from torch_fidelity.utils import (
 import numpy as np
 
 
-def calculate_metrics_one_feature_extractor(**kwargs):
+def calculate_metrics_one_feature_extractor(get_stats=False, **kwargs):
     verbose = get_kwarg("verbose", kwargs)
     input1, input2, fid_statistics_file = get_kwarg("input1", kwargs), get_kwarg("input2", kwargs), get_kwarg("fid_statistics_file", kwargs)
 
@@ -68,7 +68,7 @@ def calculate_metrics_one_feature_extractor(**kwargs):
 
         if have_only_fid:
             # shortcut for a case when statistics are cached and features are not required on at least one input
-            metric_fid = fid_inputs_to_metric(feat_extractor, **kwargs)
+            metric_fid = fid_inputs_to_metric(feat_extractor, get_stats=get_stats, **kwargs)
             metrics.update(metric_fid)
             return metrics
 
@@ -115,7 +115,7 @@ def calculate_metrics_one_feature_extractor(**kwargs):
     return metrics
 
 
-def calculate_metrics(**kwargs):
+def calculate_metrics(get_stats=False, **kwargs):
     """
     Calculates metrics for the given inputs. Keyword arguments:
 
@@ -344,12 +344,13 @@ def calculate_metrics(**kwargs):
     out = {}
     kwargs_subset = dict(**kwargs)
     kwargs_subset["prc"] = False
-    out.update(calculate_metrics_one_feature_extractor(**kwargs_subset))
-    kwargs_subset = dict(**kwargs)
-    kwargs_subset["isc"] = False
-    kwargs_subset["fid"] = False
-    kwargs_subset["kid"] = False
-    kwargs_subset["ppl"] = False
-    out.update(calculate_metrics_one_feature_extractor(**kwargs_subset))
+    out.update(calculate_metrics_one_feature_extractor(get_stats=get_stats, **kwargs_subset))
+    if not get_stats:
+        kwargs_subset = dict(**kwargs)
+        kwargs_subset["isc"] = False
+        kwargs_subset["fid"] = False
+        kwargs_subset["kid"] = False
+        kwargs_subset["ppl"] = False
+        out.update(calculate_metrics_one_feature_extractor(**kwargs_subset))
 
     return out
