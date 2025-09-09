@@ -339,18 +339,17 @@ def calculate_metrics(get_stats=False, **kwargs):
 
     if fe_name is not None or not (have_default_fe_inception and have_default_fe_vgg):
         # using the same non-default feature extractor for all metrics except ppl, or using just one default extractor
-        return calculate_metrics_one_feature_extractor(**kwargs)
+        return calculate_metrics_one_feature_extractor(get_stats=get_stats, **kwargs)
 
     out = {}
     kwargs_subset = dict(**kwargs)
     kwargs_subset["prc"] = False
-    out.update(calculate_metrics_one_feature_extractor(get_stats=get_stats, **kwargs_subset))
-    if not get_stats:
-        kwargs_subset = dict(**kwargs)
-        kwargs_subset["isc"] = False
-        kwargs_subset["fid"] = False
-        kwargs_subset["kid"] = False
-        kwargs_subset["ppl"] = False
-        out.update(calculate_metrics_one_feature_extractor(**kwargs_subset))
+    out.update(calculate_metrics_one_feature_extractor(**kwargs_subset))
+    kwargs_subset = dict(**kwargs)
+    kwargs_subset["isc"] = False
+    kwargs_subset["fid"] = False
+    kwargs_subset["kid"] = False
+    kwargs_subset["ppl"] = False
+    out.update(calculate_metrics_one_feature_extractor(**kwargs_subset))
 
     return out
